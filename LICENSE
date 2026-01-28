@@ -1,101 +1,42 @@
-#######################
-###				    ###
-### ENGLISH VERSION ###
-###				    ###
-#######################
-
-# RDE-Public-OpenS-v1.1 License
-
-## Copyright Notice
-Copyright © 2025 .:: Red Dragon Elite ::. (https://rd-elite.com)  
-Author: SerpentsByte  
-Clan: .:: Red Dragon Elite ::. is the sole intellectual owner of this work.
-
-## Terms of Use
-
-### 1. Permitted Use
-- The use of this software is permitted exclusively for personal, non-commercial purposes.
-- Installation and execution of the software on your own systems is allowed.
-- Any modification of the code for personal use is permitted, as long as no redistribution occurs.
-
-### 2. Restrictions
-- **Redistribution**: Any redistribution, whether in modified or unmodified form, is STRICTLY PROHIBITED without the express written permission of the copyright holder.
-- **Integration into other projects**: The use of parts of the code in other projects is FORBIDDEN without express written permission.
-- **Commercial use**: Selling, renting, or any other form of commercial use is EXPRESSLY PROHIBITED.
-- **Removal of copyright notices**: The removal or alteration of copyright notices or license information is PROHIBITED.
-
-### 3. Permission Requests
-For inquiries regarding the use of the code in other projects or for redistribution, please contact:  
-Email: contact@rd-elite.com
-
-### 4. Legal Notices
-- This work is protected by international copyright law.
-- Unauthorized use, reproduction, or distribution may result in civil and criminal penalties.
-- Circumvention of technical protection measures is legally prohibited and will be prosecuted.
-
-### 5. Disclaimer
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
-
-### 6. Termination of Rights
-Any violation of these license terms automatically results in the immediate termination of all rights granted under this license.
-
-### 7. Governing Law
-This license agreement is governed by the laws of the Federal Republic of Germany, excluding the UN Convention on Contracts for the International Sale of Goods.
-
----
-
-By using this software, you fully accept these license terms. In case of non-compliance, we reserve the right to take legal action.
-
-**RDE-Public-OpenS-v1.1**
-.:: Red Dragon Elite ::. | https://rd-elite.com
-
-######################
-###				   ###
-### GERMAN VERSION ###
-###				   ###
-######################
-
-# RDE-Public-OpenS-v1.1 Lizenz
-
-## Copyright-Hinweis
-Copyright © 2025 .:: Red Dragon Elite ::. (https://rd-elite.com)  
-Autor: SerpentsByte  
-Clan: .:: Red Dragon Elite ::. ist alleiniger geistiger Eigentümer dieses Werkes.
-
-## Nutzungsbedingungen
-
-### 1. Erlaubte Nutzung
-- Die Nutzung dieser Software ist ausschließlich für persönliche, nicht-kommerzielle Zwecke gestattet.
-- Die Installation und Ausführung der Software auf eigenen Systemen ist erlaubt.
-- Jegliche Modifikation des Codes für den Eigengebrauch ist gestattet, solange keine Weiterverbreitung erfolgt.
-
-### 2. Einschränkungen
-- **Weiterverbreitung**: Jegliche Weiterverbreitung, ob in veränderter oder unveränderter Form, ist ohne ausdrückliche schriftliche Genehmigung des Urhebers STRENG UNTERSAGT.
-- **Integration in andere Projekte**: Die Verwendung von Teilen des Codes in anderen Projekten ist ohne ausdrückliche schriftliche Genehmigung VERBOTEN.
-- **Kommerzielle Nutzung**: Der Verkauf, die Vermietung oder jede andere Form der kommerziellen Nutzung ist AUSDRÜCKLICH UNTERSAGT.
-- **Entfernung von Urheberrechtshinweisen**: Die Entfernung oder Änderung von Urheberrechtshinweisen oder der Lizenzinformation ist VERBOTEN.
-
-### 3. Genehmigungsanfragen
-Für Anfragen zur Nutzung des Codes in anderen Projekten oder zur Weiterverbreitung wenden Sie sich bitte an:  
-E-Mail: contact@rd-elite.com
-
-### 4. Rechtliche Hinweise
-- Dieses Werk ist durch internationales Urheberrecht geschützt.
-- Unbefugte Nutzung, Vervielfältigung oder Verbreitung kann zivil- und strafrechtliche Konsequenzen nach sich ziehen.
-- Die Umgehung technischer Schutzmaßnahmen ist gesetzlich verboten und wird rechtlich verfolgt.
-
-### 5. Haftungsausschluss
-DIE SOFTWARE WIRD OHNE JEGLICHE GARANTIE BEREITGESTELLT, WEDER AUSDRÜCKLICH NOCH STILLSCHWEIGEND, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF DIE GARANTIEN DER MARKTGÄNGIGKEIT, EIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND NICHTVERLETZUNG VON RECHTEN DRITTER. IN KEINEM FALL SIND DIE AUTOREN ODER URHEBERRECHTSINHABER HAFTBAR FÜR ANSPRÜCHE, SCHÄDEN ODER ANDERE VERPFLICHTUNGEN.
-
-### 6. Beendigung der Rechte
-Jede Verletzung dieser Lizenzbedingungen führt automatisch zum sofortigen Erlöschen aller unter dieser Lizenz gewährten Rechte.
-
-### 7. Rechtswahl
-Diese Lizenzvereinbarung unterliegt dem Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.
-
----
-
-Durch die Nutzung dieser Software erkennen Sie diese Lizenzbedingungen vollständig an. Bei Nichtbeachtung behalten wir uns vor, rechtliche Schritte einzuleiten.
-
-**RDE-Public-OpenS-v1.1**
-.:: Red Dragon Elite ::. | https://rd-elite.com
+--[[
+    ###################################################################################
+    #                                                                                 #
+    #      .:: RED DRAGON ELITE (RDE)  -  BLACK FLAG SOURCE LICENSE v6.66 ::.         #
+    #                                                                                 #
+    #   PROJECT:    RDE_PROPS | ADVANCED PROP SYSTEM FOR OX_CORE WITH STATEBAG SYNC   #
+    #   ARCHITECT:  .:: RDE ⧌ Shin [ △ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽ ] ::. | https://rd-elite.com   #
+    #   ORIGIN:     https://github.com/RedDragonElite                                 #
+    #                                                                                 #
+    #   WARNING: THIS CODE IS PROTECTED BY DIGITAL VOODOO AND PURE HATRED FOR LEAKERS #
+    #                                                                                 #
+    #   [ THE RULES OF THE GAME ]                                                     #
+    #                                                                                 #
+    #   1. // THE "FUCK GREED" PROTOCOL (FREE USE)                                    #
+    #      You are free to use, edit, and abuse this code on your server.             #
+    #      Learn from it. Break it. Fix it. That is the hacker way.                   #
+    #      Cost: 0.00€. If you paid for this, you got scammed by a rat.               #
+    #                                                                                 #
+    #   2. // THE TEBEX KILL SWITCH (COMMERCIAL SUICIDE)                              #
+    #      Listen closely, you parasites:                                             #
+    #      If I find this script on Tebex, Patreon, or in a paid "Premium Pack":      #
+    #      > I will DMCA your store into oblivion.                                    #
+    #      > I will publicly shame your community.                                    #
+    #      > I hope your server lag spikes to 9999ms every time you blink.            #
+    #      SELLING FREE WORK IS THEFT. AND I AM THE JUDGE.                            #
+    #                                                                                 #
+    #   3. // THE CREDIT OATH                                                         #
+    #      Keep this header. If you remove my name, you admit you have no skill.      #
+    #      You can add "Edited by [YourName]", but never erase the original creator.  #
+    #      Don't be a skid. Respect the architecture.                                 #
+    #                                                                                 #
+    #   4. // THE CURSE OF THE COPY-PASTE                                             #
+    #      This code uses advanced Statebags and heavy logic.                         #
+    #      If you just copy-paste without reading, it WILL break.                     #
+    #      Don't come crying to my DMs. RTFM or learn to code.                        #
+    #                                                                                 #
+    #   ---------------------------------------------------------------------------   #
+    #   "We build the future on the graves of paid resources."                        #
+    #   "REJECT MODERN MEDIOCRITY. EMBRACE RDE SUPERIORITY."                          #
+    #   ---------------------------------------------------------------------------   #
+    ###################################################################################
+]]
