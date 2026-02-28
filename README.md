@@ -1,5 +1,5 @@
 # 🎮 RDE Props — Advanced Prop Management System
-![dl_1771623905174](https://github.com/user-attachments/assets/4acd85e0-7a2d-4a25-82f5-1be57c858f53)
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/9f55dc89-754c-4e44-b41d-2a4858b50d4f" />
 
 <div align="center">
 
