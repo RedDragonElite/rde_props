@@ -1,7 +1,7 @@
 --[[
     ╔═══════════════════════════════════════════════════════╗
     ║  RDE Prop Management System - IMMERSIVE EDITION v2.2  ║
-    ║  ✅ FIXED: Prop Deletion | ✅ FIXED: HTML Rendering    ║
+    ║  ✅ FIXED: Prop Deletion | ✅ FIXED: HTML Rendering  ║
     ╚═══════════════════════════════════════════════════════╝
 ]]
 local Config = require 'config'
