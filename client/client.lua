@@ -1,7 +1,9 @@
 --[[
     ╔═══════════════════════════════════════════════════════╗
-    ║  RDE Prop Management System - IMMERSIVE EDITION v2.2  ║
-    ║  ✅ FIXED: Prop Deletion | ✅ FIXED: HTML Rendering  ║
+    ║  RDE Prop Management System - CLIENT v1.0.0           ║
+    ║  ✅ ox_inventory Item Support                         ║
+    ║  ✅ Fixed Mouse Placement (No Boxing Movement)        ║
+    ║  ✅ Production Ready                                  ║
     ╚═══════════════════════════════════════════════════════╝
 ]]
 local Config = require 'config'
@@ -19,7 +21,8 @@ local State = {
     hasPlaced = false,
     placementData = {},
     movementSpeed = Config.MovementSpeed.normal,
-    rotationSpeed = Config.RotationSpeed.normal
+    rotationSpeed = Config.RotationSpeed.normal,
+    isUsingItem = false -- Prevents boxing animation
 }
 
 -- ============================================
@@ -142,8 +145,8 @@ local function GetTargetOptions(propId, propData)
     if canManage then
         table.insert(options, {
             name = 'prop_collision',
-            icon = propData.collision and Config.GetString('targetCollisionOnIcon') or Config.GetString('targetCollisionOffIcon'),
-            iconColor = propData.collision and Config.GetString('targetCollisionOnColor') or Config.GetString('targetCollisionOffColor'),
+            icon = propData.collision and Config.GetString('targetCollisionOffIcon') or Config.GetString('targetCollisionOnIcon'),
+            iconColor = propData.collision and Config.GetString('targetCollisionOffColor') or Config.GetString('targetCollisionOnColor'),
             label = propData.collision and Config.GetString('targetCollisionOff') or Config.GetString('targetCollisionOn'),
             onSelect = function()
                 TriggerServerEvent('rde_props:toggleCollision', propId)
@@ -204,7 +207,8 @@ local function CreateTargetZone(propId, entity, propData)
             size = size,
             rotation = GetEntityHeading(entity),
             debug = Config.TargetZones.debug,
-            options = GetTargetOptions(propId, propData)
+            options = GetTargetOptions(propId, propData),
+            distance = Config.TargetSettings.distance
         })
     end)
     if success and zoneId then
@@ -213,120 +217,124 @@ local function CreateTargetZone(propId, entity, propData)
 end
 
 local function RemoveTargetZone(propId)
-    if not State.zones[propId] then return end
-    pcall(function() exports.ox_target:removeZone(State.zones[propId]) end)
-    State.zones[propId] = nil
+    if State.zones[propId] then
+        pcall(function() exports.ox_target:removeZone(State.zones[propId]) end)
+        State.zones[propId] = nil
+    end
 end
 
 -- ============================================
--- 🏗️ PROP MANAGEMENT - FIXED DELETION
+-- 🏗️ PROP MANAGEMENT
 -- ============================================
-local function CreateProp(propId, propData)
-    if State.entities[propId] then return false end
-    if not LoadModel(propData.model) then
-        lib.notify({ title = '❌ Error', description = 'Model load failed', type = 'error' })
-        return false
+function CreateProp(propId, data)
+    if not data or not data.model or not data.position then
+        Log(string.format('Invalid prop data: %s', propId), 'ERROR')
+        return
     end
-    local hash = type(propData.model) == 'string' and joaat(propData.model) or propData.model
-    local entity = CreateObject(hash, propData.position.x, propData.position.y, propData.position.z, false, true, false)
-    if not DoesEntityExist(entity) then return false end
-    SetEntityAsMissionEntity(entity, true, true)
+    if State.entities[propId] then
+        Log(string.format('Prop already exists: %s', propId), 'WARN')
+        return
+    end
+    if not LoadModel(data.model) then
+        Log(string.format('Model load failed: %s', data.model), 'ERROR')
+        return
+    end
+    local entity = CreateObject(
+        joaat(data.model),
+        data.position.x, data.position.y, data.position.z,
+        false, false, false
+    )
+    if not DoesEntityExist(entity) then
+        Log(string.format('Entity creation failed: %s', propId), 'ERROR')
+        return
+    end
+    SetEntityRotation(entity, data.rotation.x, data.rotation.y, data.rotation.z, 2, true)
+    SetEntityCollision(entity, data.collision, data.collision)
     FreezeEntityPosition(entity, true)
-    SetEntityInvincible(entity, true)
-    if propData.rotation then
-        SetEntityRotation(entity, propData.rotation.x, propData.rotation.y, propData.rotation.z, 2, true)
-    end
-    SetEntityCollision(entity, propData.collision, propData.collision)
-    if propData.isAdmin then
+    if data.isAdmin then
         SetEntityDrawOutline(entity, true)
         SetEntityDrawOutlineColor(entity, Config.Colors.admin.r, Config.Colors.admin.g, Config.Colors.admin.b, 255)
     end
     State.entities[propId] = entity
-    State.props[propId] = propData
-    Wait(100)
-    CreateTargetZone(propId, entity, propData)
-    Log(string.format('Prop created: %s (entity: %d)', propId, entity), 'INFO')
-    return true
+    State.props[propId] = data
+    CreateTargetZone(propId, entity, data)
+    Log(string.format('Prop created: %s', propId), 'INFO')
 end
 
-local function DeleteProp(propId)
-    Log(string.format('Deleting prop: %s', propId), 'INFO')
-    
-    -- Remove target zone first
-    RemoveTargetZone(propId)
-    
-    -- Get and delete entity
+function UpdateProp(propId, data)
     local entity = State.entities[propId]
-    if entity and DoesEntityExist(entity) then
-        Log(string.format('Entity exists, deleting: %d', entity), 'INFO')
-        SetEntityAsMissionEntity(entity, false, true)
-        DeleteEntity(entity)
-        
-        -- Force cleanup
-        Wait(50)
-        if DoesEntityExist(entity) then
-            Log(string.format('Force deleting entity: %d', entity), 'WARN')
-            SetEntityAsNoLongerNeeded(entity)
-            DeleteObject(entity)
-        end
+    if not entity or not DoesEntityExist(entity) then return end
+    if data.position then
+        SetEntityCoords(entity, data.position.x, data.position.y, data.position.z, false, false, false, false)
     end
-    
-    -- Clean up state
-    State.entities[propId] = nil
-    State.props[propId] = nil
-    
-    Log(string.format('Prop deleted successfully: %s', propId), 'INFO')
-end
-
-local function UpdateProp(propId, propData)
-    local entity = State.entities[propId]
-    if not entity or not DoesEntityExist(entity) then
-        CreateProp(propId, propData)
-        return
+    if data.rotation then
+        SetEntityRotation(entity, data.rotation.x, data.rotation.y, data.rotation.z, 2, true)
     end
-    local oldData = State.props[propId]
-    if not oldData then return end
-    if oldData.collision ~= propData.collision then
-        SetEntityCollision(entity, propData.collision, propData.collision)
+    if data.collision ~= nil then
+        SetEntityCollision(entity, data.collision, data.collision)
     end
-    if oldData.isAdmin ~= propData.isAdmin then
-        SetEntityDrawOutline(entity, propData.isAdmin)
-        if propData.isAdmin then
-            SetEntityDrawOutlineColor(entity, Config.Colors.admin.r, Config.Colors.admin.g, Config.Colors.admin.b, 255)
-        end
-    end
-    State.props[propId] = propData
+    State.props[propId] = data
     RemoveTargetZone(propId)
     Wait(50)
-    CreateTargetZone(propId, entity, propData)
+    CreateTargetZone(propId, entity, data)
 end
 
--- ============================================
--- 🎮 IMMERSIVE PLACEMENT SYSTEM (MIT MAUSSTEUERUNG & SMOOTH ROTATION)
--- ============================================
-local function GetMouseTarget()
-    local cam = GetGameplayCamCoord()
-    local _, hit, coords = lib.raycast.cam(Config.CollisionDetection.raycastFlags, 4, Config.MousePlacement.maxDistance)
-    if not hit or not coords then
-        local rotation = GetGameplayCamRot(2)
-        local forward = vector3(
-            -math.sin(math.rad(rotation.z)) * math.abs(math.cos(math.rad(rotation.x))),
-            math.cos(math.rad(rotation.z)) * math.abs(math.cos(math.rad(rotation.x))),
-            math.sin(math.rad(rotation.x))
-        )
-        coords = cam + (forward * 5.0)
+function DeleteProp(propId)
+    local entity = State.entities[propId]
+    if entity and DoesEntityExist(entity) then
+        RemoveTargetZone(propId)
+        DeleteEntity(entity)
     end
-    return coords
+    State.entities[propId] = nil
+    State.props[propId] = nil
+    Log(string.format('Prop deleted: %s', propId), 'INFO')
 end
 
-local function IsValidPlacement(coords)
-    local playerPos = GetEntityCoords(cache.ped)
-    local distance = #(playerPos - coords)
-    return distance >= Config.MousePlacement.minDistance and
-           distance <= Config.MousePlacement.maxDistance
+-- ============================================
+-- 🎮 PLACEMENT SYSTEM (FIXED MOUSE1 BOXING)
+-- ============================================
+local function GetMouseRaycast()
+    local screenCoord = GetActiveScreenResolution()
+    local camRot = GetGameplayCamRot(2)
+    local camPos = GetGameplayCamCoord()
+    
+    local mouseX = GetControlNormal(0, 239)
+    local mouseY = GetControlNormal(0, 240)
+    
+    local targetX = (mouseX - 0.5) * 2.0
+    local targetY = (mouseY - 0.5) * 2.0
+    
+    local direction = RotationToDirection(camRot)
+    local farAway = vec3(
+        camPos.x + direction.x * Config.MousePlacement.maxDistance,
+        camPos.y + direction.y * Config.MousePlacement.maxDistance,
+        camPos.z + direction.z * Config.MousePlacement.maxDistance
+    )
+    
+    local rayHandle = StartShapeTestRay(
+        camPos.x, camPos.y, camPos.z,
+        farAway.x, farAway.y, farAway.z,
+        Config.CollisionDetection.raycastFlags,
+        PlayerPedId(), 0
+    )
+    
+    local _, hit, coords, _, entity = GetShapeTestResult(rayHandle)
+    
+    if hit == 1 then
+        return coords, true
+    else
+        return farAway, false
+    end
 end
 
-local function StartPlacement(model, name, options)
+function RotationToDirection(rotation)
+    local z = math.rad(rotation.z)
+    local x = math.rad(rotation.x)
+    local num = math.abs(math.cos(x))
+    return vec3(-math.sin(z) * num, math.cos(z) * num, math.sin(x))
+end
+
+function StartPlacement(model, name, opts)
     if State.placing then
         lib.notify({
             title = Config.GetString('warningTitle'),
@@ -335,45 +343,73 @@ local function StartPlacement(model, name, options)
         })
         return
     end
+    
+    -- Mark as using item to prevent boxing animation
+    State.isUsingItem = true
+    
     if not LoadModel(model) then
         lib.notify({
             title = Config.GetString('errorTitle'),
             description = Config.GetString('modelLoadFailed'),
             type = 'error'
         })
+        State.isUsingItem = false
         return
     end
+    
     State.placing = true
     State.rotation = vector3(0.0, 0.0, 0.0)
     State.heightOffset = 0.0
-    State.movementSpeed = Config.MovementSpeed.normal
-    State.rotationSpeed = Config.RotationSpeed.normal
-    ShowImmersiveControls()
-    lib.notify({
-        title = Config.GetString('placementModeTitle'),
-        description = Config.GetString('placementModeDesc'),
-        type = 'inform',
-        duration = 5000
-    })
-    local hash = type(model) == 'string' and joaat(model) or model
-    local playerPos = GetEntityCoords(cache.ped)
-    local playerHeading = GetEntityHeading(cache.ped)
-    State.preview = CreateObject(hash, playerPos.x, playerPos.y, playerPos.z, false, false, false)
-    if not DoesEntityExist(State.preview) then
-        State.placing = false
-        HideImmersiveControls()
-        return
-    end
-    SetEntityAlpha(State.preview, Config.PreviewAlpha.placing, false)
+    State.placementData = {
+        model = model,
+        name = name,
+        permanent = opts and opts.permanent or true,
+        collision = opts and opts.collision or true,
+        isAdmin = opts and opts.isAdmin or false,
+        fromItem = opts and opts.fromItem or false,
+        itemSlot = opts and opts.itemSlot or nil
+    }
+    
+    local playerPed = PlayerPedId()
+    local coords = GetEntityCoords(playerPed)
+    local heading = GetEntityHeading(playerPed)
+    
+    State.preview = CreateObject(joaat(model), coords.x, coords.y, coords.z, false, false, false)
     SetEntityCollision(State.preview, false, false)
-    FreezeEntityPosition(State.preview, true)
-    SetEntityRotation(State.preview, 0.0, 0.0, playerHeading, 2, true)
-    State.rotation = vector3(0.0, 0.0, playerHeading)
+    SetEntityAlpha(State.preview, Config.PreviewAlpha.placing, false)
+    SetEntityHeading(State.preview, heading)
+    
+    ShowImmersiveControls()
+    
+    -- CRITICAL: Disable all attack controls during placement
     CreateThread(function()
-        local collisionEnabled = options.collision ~= false
         while State.placing do
             Wait(0)
-            -- Geschwindigkeit anpassen (Shift/Alt)
+            
+            -- Completely disable attack controls to prevent boxing animation
+            DisableControlAction(0, 24, true)  -- Attack (Mouse1)
+            DisableControlAction(0, 25, true)  -- Aim (Mouse2)
+            DisableControlAction(0, 140, true) -- Melee Attack Light
+            DisableControlAction(0, 141, true) -- Melee Attack Heavy
+            DisableControlAction(0, 142, true) -- Melee Attack Alternate
+            DisableControlAction(0, 257, true) -- Attack 2
+            DisableControlAction(0, 263, true) -- Melee Attack 1
+            
+            -- Get mouse raycast position
+            local targetPos, validHit = GetMouseRaycast()
+            if validHit then
+                targetPos = vec3(targetPos.x, targetPos.y, targetPos.z + State.heightOffset)
+            else
+                local ped = PlayerPedId()
+                local forward = GetEntityForwardVector(ped)
+                local pedCoords = GetEntityCoords(ped)
+                targetPos = pedCoords + (forward * 3.0) + vec3(0.0, 0.0, State.heightOffset)
+            end
+            
+            SetEntityCoordsNoOffset(State.preview, targetPos.x, targetPos.y, targetPos.z, false, false, false)
+            SetEntityRotation(State.preview, State.rotation.x, State.rotation.y, State.rotation.z, 2, true)
+            
+            -- Speed modifiers
             if IsControlPressed(0, Config.Controls.fastMode) then
                 State.movementSpeed = Config.MovementSpeed.fast
                 State.rotationSpeed = Config.RotationSpeed.fast
@@ -384,89 +420,71 @@ local function StartPlacement(model, name, options)
                 State.movementSpeed = Config.MovementSpeed.normal
                 State.rotationSpeed = Config.RotationSpeed.normal
             end
-            -- Mausposition abfragen
-            local coords = GetMouseTarget()
-            if State.lastCoords then
-                coords = State.lastCoords + ((coords - State.lastCoords) * Config.MousePlacement.smoothing)
-            end
-            State.lastCoords = coords
-            -- Höhe (Numpad + / -)
+            
+            -- Height controls
             if IsControlPressed(0, Config.Controls.up) then
-                State.heightOffset = State.heightOffset + (State.movementSpeed * 0.5)
-            elseif IsControlPressed(0, Config.Controls.down) then
-                State.heightOffset = State.heightOffset - (State.movementSpeed * 0.5)
+                State.heightOffset = State.heightOffset + State.movementSpeed
             end
-            -- Rotation Z (Numpad 4 / 6)
+            if IsControlPressed(0, Config.Controls.down) then
+                State.heightOffset = State.heightOffset - State.movementSpeed
+            end
+            
+            -- Rotation controls
             if IsControlPressed(0, Config.Controls.rotateLeft) then
-                State.rotation = vector3(State.rotation.x, State.rotation.y, (State.rotation.z + State.rotationSpeed) % 360)
-            elseif IsControlPressed(0, Config.Controls.rotateRight) then
-                State.rotation = vector3(State.rotation.x, State.rotation.y, (State.rotation.z - State.rotationSpeed) % 360)
+                State.rotation = vec3(State.rotation.x, State.rotation.y, State.rotation.z - State.rotationSpeed)
             end
-            -- Rotation X (Pfeiltasten Hoch/Runter)
-            if IsControlPressed(0, 172) then -- Arrow Up
-                State.rotation = vector3((State.rotation.x + State.rotationSpeed) % 360, State.rotation.y, State.rotation.z)
-            elseif IsControlPressed(0, 173) then -- Arrow Down
-                State.rotation = vector3((State.rotation.x - State.rotationSpeed) % 360, State.rotation.y, State.rotation.z)
+            if IsControlPressed(0, Config.Controls.rotateRight) then
+                State.rotation = vec3(State.rotation.x, State.rotation.y, State.rotation.z + State.rotationSpeed)
             end
-            -- Kollision Toggle (G)
+            if IsControlPressed(0, Config.Controls.forward) then
+                State.rotation = vec3(State.rotation.x + State.rotationSpeed, State.rotation.y, State.rotation.z)
+            end
+            if IsControlPressed(0, Config.Controls.backward) then
+                State.rotation = vec3(State.rotation.x - State.rotationSpeed, State.rotation.y, State.rotation.z)
+            end
+            
+            -- Collision toggle
             if IsControlJustPressed(0, Config.Controls.toggleCollision) then
-                collisionEnabled = not collisionEnabled
+                State.placementData.collision = not State.placementData.collision
                 lib.notify({
-                    title = collisionEnabled and Config.GetString('collisionEnabled') or Config.GetString('collisionDisabled'),
-                    type = 'inform',
-                    duration = 2000
+                    title = 'Collision',
+                    description = State.placementData.collision and '✅ Enabled' or '❌ Disabled',
+                    type = 'inform'
                 })
             end
-            -- Position aktualisieren
-            local finalPos = vector3(coords.x, coords.y, coords.z + State.heightOffset)
-            SetEntityCoords(State.preview, finalPos.x, finalPos.y, finalPos.z, false, false, false, false)
-            SetEntityRotation(State.preview, State.rotation.x, State.rotation.y, State.rotation.z, 2, true)
-            -- Validierung
-            local isValid = IsValidPlacement(finalPos)
-            SetEntityAlpha(State.preview, isValid and Config.PreviewAlpha.valid or Config.PreviewAlpha.invalid, false)
-            local color = isValid and Config.Colors.valid or Config.Colors.invalid
-            DrawMarker(28, finalPos.x, finalPos.y, finalPos.z, 0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5,
-                      color.r, color.g, color.b, 150, false, true, 2, false)
-            -- Info anzeigen
-            ShowPlacementInfo(isValid, State.heightOffset, State.rotation)
-            -- Platzieren mit Linksklick (Attack1)
-            if IsControlJustPressed(0, Config.Controls.confirm) then
-                if isValid then
-                    local finalCoords = GetEntityCoords(State.preview)
-                    local finalRotation = GetEntityRotation(State.preview)
-                    DeleteEntity(State.preview)
-                    State.placing = false
-                    HideImmersiveControls()
-                    TriggerServerEvent('rde_props:place', {
-                        model = model,
-                        name = name,
-                        position = {
-                            x = math.floor(finalCoords.x * 10000) / 10000,
-                            y = math.floor(finalCoords.y * 10000) / 10000,
-                            z = math.floor(finalCoords.z * 10000) / 10000
-                        },
-                        rotation = {
-                            x = math.floor(finalRotation.x * 100) / 100,
-                            y = math.floor(finalRotation.y * 100) / 100,
-                            z = math.floor(finalRotation.z * 100) / 100
-                        },
-                        collision = collisionEnabled,
-                        permanent = options.permanent,
-                        isAdmin = options.isAdmin
-                    })
-                    break
-                else
-                    lib.notify({
-                        title = Config.GetString('warningTitle'),
-                        description = Config.GetString('invalidPlacement'),
-                        type = 'warning'
-                    })
-                end
-            end
-            -- Abbrechen mit Rechtsklick
-            if IsControlJustPressed(0, Config.Controls.cancel) then
+            
+            ShowPlacementInfo(validHit, State.heightOffset, State.rotation)
+            
+            -- Confirm placement with ENTER or special handling for Mouse1
+            if IsControlJustPressed(0, 191) or IsDisabledControlJustPressed(0, Config.Controls.confirm) then
+                local finalPos = GetEntityCoords(State.preview)
+                TriggerServerEvent('rde_props:place', {
+                    model = State.placementData.model,
+                    name = State.placementData.name,
+                    position = { x = finalPos.x, y = finalPos.y, z = finalPos.z },
+                    rotation = { x = State.rotation.x, y = State.rotation.y, z = State.rotation.z },
+                    collision = State.placementData.collision,
+                    permanent = State.placementData.permanent,
+                    isAdmin = State.placementData.isAdmin,
+                    fromItem = State.placementData.fromItem,
+                    itemSlot = State.placementData.itemSlot
+                })
                 DeleteEntity(State.preview)
                 State.placing = false
+                State.isUsingItem = false
+                HideImmersiveControls()
+                break
+            end
+            
+            -- Cancel with BACKSPACE or Right Mouse
+            if IsControlJustPressed(0, 194) or IsControlJustPressed(0, Config.Controls.cancel) then
+                -- Return item if cancelled
+                if State.placementData.fromItem then
+                    TriggerServerEvent('rde_props:returnItem', State.placementData.itemSlot)
+                end
+                DeleteEntity(State.preview)
+                State.placing = false
+                State.isUsingItem = false
                 HideImmersiveControls()
                 lib.notify({
                     title = Config.GetString('infoTitle'),
@@ -481,6 +499,7 @@ local function StartPlacement(model, name, options)
             State.preview = nil
         end
         State.placing = false
+        State.isUsingItem = false
         HideImmersiveControls()
     end)
 end
@@ -569,7 +588,29 @@ RegisterCommand('props', function() OpenAdminMenu() end, false)
 RegisterCommand('propmenu', function() OpenAdminMenu() end, false)
 
 -- ============================================
--- 📡 STATEBAG & NETWORK EVENTS - FIXED DELETION
+-- 📦 OX_INVENTORY ITEM SUPPORT
+-- ============================================
+RegisterNetEvent('rde_props:placeFromItem', function(data)
+    if State.placing then
+        lib.notify({
+            title = Config.GetString('warningTitle'),
+            description = Config.GetString('alreadyPlacing'),
+            type = 'warning'
+        })
+        return
+    end
+    
+    StartPlacement(data.model, data.name, {
+        permanent = false,
+        collision = data.collision or true,
+        isAdmin = false,
+        fromItem = true,
+        itemSlot = data.slot
+    })
+end)
+
+-- ============================================
+-- 📡 STATEBAG & NETWORK EVENTS
 -- ============================================
 AddStateBagChangeHandler(Config.StatebagPrefix, nil, function(bagName, key, value)
     if not value then return end
@@ -667,4 +708,4 @@ CreateThread(function()
     TriggerServerEvent('rde_props:init')
 end)
 
-print('^2[RDE | Props]^7 Immersive Edition v2.2 geladen! ✨ (FIXED: Deletion & HTML)')
+print('^2[RDE | Props]^7 Client v1.0.0 loaded! ✅ ox_inventory support | ✅ Fixed mouse placement')
