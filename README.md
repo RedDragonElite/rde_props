@@ -3,7 +3,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.0.0-red?style=for-the-badge&logo=github)
+![Version](https://img.shields.io/badge/version-1.0.0-red?style=for-the-badge&logo=github)
 ![License](https://img.shields.io/badge/license-RDE%20Black%20Flag%20v6.66-black?style=for-the-badge)
 ![FiveM](https://img.shields.io/badge/FiveM-Compatible-orange?style=for-the-badge)
 ![ox_core](https://img.shields.io/badge/ox__core-Required-blue?style=for-the-badge)
@@ -453,7 +453,7 @@ Verify the player's ox_core group is listed in `Config.AdminGroups` and the reso
 
 ## 📝 Changelog
 
-### v2.0.0 — Current
+### v1.0.0 — Current
 - Complete rewrite with immersive placement UI
 - Mouse-based raycast placement
 - Full 3D rotation on all axes
@@ -490,7 +490,7 @@ Guidelines: follow existing Lua conventions, comment complex logic, test on a li
 #                                                                                 #
 #      .:: RED DRAGON ELITE (RDE)  -  BLACK FLAG SOURCE LICENSE v6.66 ::.         #
 #                                                                                 #
-#   PROJECT:    RDE_PROPS v2.0.0 (ADVANCED PROP MANAGEMENT SYSTEM FOR FIVEM)      #
+#   PROJECT:    RDE_PROPS v1.0.0 (ADVANCED PROP MANAGEMENT SYSTEM FOR FIVEM)      #
 #   ARCHITECT:  .:: RDE ⧌ Shin [△ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽] ::. | https://rd-elite.com     #
 #   ORIGIN:     https://github.com/RedDragonElite                                 #
 #                                                                                 #
