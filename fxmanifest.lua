@@ -1,8 +1,8 @@
 fx_version 'cerulean'
 game 'gta5'
 
-author 'RDE| SerpentsByte'
-description 'Advanced Prop Management System'
+author 'RDE | SerpentsByte'
+description 'Advanced Prop Management System with ox_inventory Support'
 version '1.0.0'
 
 shared_scripts {
@@ -12,6 +12,7 @@ shared_scripts {
 }
 
 client_scripts {
+    'data/items.lua',
     'client/client.lua'
 }
 

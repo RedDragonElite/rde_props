@@ -1,7 +1,7 @@
 --[[
     ╔═══════════════════════════════════════════════════════╗
     ║  RDE Prop Management System - COMPLETE CONFIG         ║
-    ║  Version: 2.0.0 - Alle Strings & Icons in Config      ║
+    ║  Version: 1.0.0 - Alle Strings & Icons in Config      ║
     ╚═══════════════════════════════════════════════════════╝
 ]]
 
