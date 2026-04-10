@@ -1,8 +1,9 @@
 --[[
-    ╔═════════════════════════════════════════════════════════╗
-    ║  RDE Prop Management System - SERVER v1.0.0 PRODUCTION  ║
-    ║  ✅ 100% Echtzeit-Sync | ✅ Perfektionierte Logik      ║
-    ╚═════════════════════════════════════════════════════════╝
+    ╔═══════════════════════════════════════════════════════╗
+    ║  RDE Prop Management System - SERVER v1.0.0           ║
+    ║  ✅ ox_inventory Item Support                         ║
+    ║  ✅ Production Ready                                  ║
+    ╚═══════════════════════════════════════════════════════╝
 ]]
 -- ============================================
 -- 📦 CONFIG & STATE
@@ -120,19 +121,17 @@ local function Notify(source, title, description, type)
 end
 
 -- ============================================
--- 🔄 STATEBAG SYNC SYSTEM (100% REALTIME)
+-- 🔄 STATEBAG SYNC SYSTEM
 -- ============================================
 local function UpdateStatebag(propId, data)
     if not propId then return end
     local key = Config.StatebagPrefix .. propId
     if data then
         GlobalState[key] = data
-        -- Broadcast to ALL clients immediately
         TriggerClientEvent('rde_props:statebagUpdate', -1, propId, data)
         Log(string.format('Statebag updated and broadcasted: %s', propId), 'INFO')
     else
         GlobalState[key] = { _deleted = true }
-        -- Broadcast deletion to ALL clients immediately
         TriggerClientEvent('rde_props:statebagDelete', -1, propId)
         SetTimeout(1000, function()
             GlobalState[key] = nil
@@ -200,7 +199,6 @@ local function SetupDatabase()
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ]], function()
         LoadAllProps(function()
-            -- Sync all props to ALL players after loading
             for _, playerId in ipairs(GetPlayers()) do
                 local source = tonumber(playerId)
                 TriggerEvent('rde_props:init', source)
@@ -210,49 +208,49 @@ local function SetupDatabase()
 end
 
 -- ============================================
--- 📡 EVENT HANDLERS (100% REALTIME)
+-- 📡 EVENT HANDLERS
 -- ============================================
--- Place Prop (with immediate statebag sync)
 RegisterNetEvent('rde_props:place', function(data)
     local source = source
     if not data or not data.model or not data.position then
         Log(string.format('Invalid placement data from player %d', source), 'ERROR')
         return
     end
+    
     local canPlace, cooldown = CanPlayerPlace(source)
     if not canPlace then
-        Notify(source, '⚠️ Warning', string.format('Wait %d seconds', cooldown), 'warning')
+        Notify(source, '⏱️ Cooldown', string.format('Wait %ds', cooldown), 'warning')
         return
     end
-    LockPlacement(source)
+    
     local identifier = GetIdentifier(source)
     if not identifier then
-        Notify(source, '❌ Error', 'Invalid player', 'error')
+        Notify(source, '❌ Error', 'Invalid identifier', 'error')
         return
     end
-    local isAdmin = IsAdmin(source)
-    local isAdminProp = data.isAdmin and isAdmin
-    if not CanPlace(identifier, isAdminProp) then
-        Notify(source, '❌ Error', 'Prop limit reached', 'error')
+    
+    if not CanPlace(identifier, data.isAdmin) then
+        Notify(source, '❌ Error', string.format('Limit reached (%d)', Config.MaxPropsPerPlayer), 'error')
         return
     end
+    
+    LockPlacement(source)
+    
     local propId = GenerateId()
-    Log(string.format('Processing placement: %s by %s', propId, identifier), 'INFO')
     local propData = {
         id = propId,
         model = data.model,
-        name = data.name or 'Prop',
+        name = data.name,
         position = data.position,
-        rotation = data.rotation or { x = 0, y = 0, z = 0 },
-        collision = data.collision ~= false,
-        permanent = data.permanent ~= false,
+        rotation = data.rotation,
+        collision = data.collision,
+        permanent = data.permanent,
         createdBy = identifier,
-        isAdmin = isAdminProp
+        isAdmin = data.isAdmin
     }
-    local success = MySQL.insert.await(
-        'INSERT INTO ' .. Config.DatabaseTable ..
-        ' (id, model, name, position, rotation, collision, permanent, created_by, is_admin)' ..
-        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    
+    local success = MySQL.query.await(
+        'INSERT INTO ' .. Config.DatabaseTable .. ' (id, model, name, position, rotation, collision, permanent, created_by, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         {
             propId,
             propData.model,
@@ -271,7 +269,7 @@ RegisterNetEvent('rde_props:place', function(data)
             State.playerProps[identifier] = {}
         end
         State.playerProps[identifier][propId] = true
-        UpdateStatebag(propId, propData)  -- Immediate statebag sync
+        UpdateStatebag(propId, propData)
         Notify(source, '✅ Success', string.format('Prop placed: %s', propData.name), 'success')
         Log(string.format('Prop created successfully: %s', propId), 'INFO')
     else
@@ -280,7 +278,6 @@ RegisterNetEvent('rde_props:place', function(data)
     end
 end)
 
--- Delete Prop (with immediate statebag sync)
 RegisterNetEvent('rde_props:delete', function(propId)
     local source = source
     local prop = State.props[propId]
@@ -297,13 +294,12 @@ RegisterNetEvent('rde_props:delete', function(propId)
         if State.playerProps[prop.createdBy] then
             State.playerProps[prop.createdBy][propId] = nil
         end
-        UpdateStatebag(propId, nil)  -- Immediate statebag deletion sync
+        UpdateStatebag(propId, nil)
         Notify(source, '✅ Success', 'Prop deleted', 'success')
         Log(string.format('Prop deleted: %s', propId), 'INFO')
     end
 end)
 
--- Toggle Collision (with immediate statebag sync)
 RegisterNetEvent('rde_props:toggleCollision', function(propId)
     local source = source
     local prop = State.props[propId]
@@ -322,8 +318,7 @@ RegisterNetEvent('rde_props:toggleCollision', function(propId)
     if success then
         prop.collision = newValue
         State.props[propId] = prop
-        UpdateStatebag(propId, prop)  -- Immediate statebag sync
-        -- Broadcast collision update to ALL clients immediately
+        UpdateStatebag(propId, prop)
         TriggerClientEvent('rde_props:updateCollision', -1, propId, newValue)
         local status = newValue and 'enabled' or 'disabled'
         Notify(source, '✅ Success', string.format('Collision %s', status), 'success')
@@ -331,7 +326,6 @@ RegisterNetEvent('rde_props:toggleCollision', function(propId)
     end
 end)
 
--- Toggle Admin (with immediate statebag sync)
 RegisterNetEvent('rde_props:toggleAdmin', function(propId)
     local source = source
     if not IsAdmin(source) then return end
@@ -345,8 +339,7 @@ RegisterNetEvent('rde_props:toggleAdmin', function(propId)
     if success then
         prop.isAdmin = newValue
         State.props[propId] = prop
-        UpdateStatebag(propId, prop)  -- Immediate statebag sync
-        -- Broadcast admin update to ALL clients immediately
+        UpdateStatebag(propId, prop)
         TriggerClientEvent('rde_props:updateAdmin', -1, propId, newValue)
         local status = newValue and 'enabled' or 'disabled'
         Notify(source, '✅ Success', string.format('Admin status %s', status), 'success')
@@ -354,7 +347,6 @@ RegisterNetEvent('rde_props:toggleAdmin', function(propId)
     end
 end)
 
--- Player Initialization (with immediate prop sync)
 RegisterNetEvent('rde_props:init', function()
     local source = source
     while not State.ready do
@@ -377,7 +369,6 @@ RegisterNetEvent('rde_props:init', function()
     Log(string.format('Player initialized: %s (admin: %s)', identifier, tostring(isAdmin)), 'INFO')
 end)
 
--- Full Reload (with immediate statebag reset)
 RegisterNetEvent('rde_props:requestReload', function()
     local source = source
     if not IsAdmin(source) then return end
@@ -392,6 +383,17 @@ RegisterNetEvent('rde_props:requestReload', function()
         Notify(source, '✅ Success', 'Props reloaded', 'success')
         Log('Full reload completed', 'INFO')
     end)
+end)
+
+-- ============================================
+-- 📦 OX_INVENTORY ITEM SUPPORT
+-- ============================================
+RegisterNetEvent('rde_props:returnItem', function(slot)
+    local source = source
+    if not slot then return end
+    
+    -- Item will be automatically returned by not removing it
+    Log(string.format('Item placement cancelled for player %d, slot %d', source, slot), 'INFO')
 end)
 
 -- ============================================
@@ -425,9 +427,9 @@ end)
 -- ============================================
 CreateThread(function()
     while true do
-        Wait(300000) -- 5 Minuten
+        Wait(300000) -- 5 minutes
         local now = GetGameTimer()
-        local cutoff = now - 600000 -- 10 Minuten
+        local cutoff = now - 600000 -- 10 minutes
         for source, timestamp in pairs(PlacementLocks) do
             if timestamp < cutoff then
                 PlacementLocks[source] = nil
@@ -468,7 +470,4 @@ RegisterCommand('propstats', function(source)
     end
 end, false)
 
-if not _RDE_PROPS_SERVER_LOADED then
-    _RDE_PROPS_SERVER_LOADED = true
-    print('^2[RDE | Props] ^7Server v1.0.0 loaded!')
-end
+print('^2[RDE | Props]^7 Server v1.0.0 loaded! ✅ ox_inventory support')
