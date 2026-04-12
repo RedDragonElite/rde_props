@@ -3,7 +3,7 @@ game 'gta5'
 
 author 'RDE | SerpentsByte'
 description 'Advanced Prop Management System with ox_inventory Support'
-version '1.0.0'
+version '1.0.1'
 
 shared_scripts {
     '@ox_lib/init.lua',
