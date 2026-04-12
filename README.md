@@ -1,30 +1,26 @@
 # 🎮 RDE Props — Advanced Prop Management System
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/4563eda0-31ba-4983-8f18-7095eed56757" />
 
-<div align="center">
+[![Version](https://img.shields.io/badge/version-1.0.1-red?style=for-the-badge&logo=github)](https://github.com/RedDragonElite/rde_props)
+[![License](https://img.shields.io/badge/license-RDE%20Black%20Flag%20v6.66-black?style=for-the-badge)](LICENSE)
+[![FiveM](https://img.shields.io/badge/FiveM-Compatible-orange?style=for-the-badge)](https://fivem.net)
+[![ox_core](https://img.shields.io/badge/ox__core-Required-blue?style=for-the-badge)](https://github.com/communityox/ox_core)
+[![Free](https://img.shields.io/badge/price-FREE%20FOREVER-brightgreen?style=for-the-badge)](https://github.com/RedDragonElite/rde_props)
 
-![Version](https://img.shields.io/badge/version-1.0.1-red?style=for-the-badge&logo=github)
-![License](https://img.shields.io/badge/license-RDE%20Black%20Flag%20v6.66-black?style=for-the-badge)
-![FiveM](https://img.shields.io/badge/FiveM-Compatible-orange?style=for-the-badge)
-![ox_core](https://img.shields.io/badge/ox__core-Required-blue?style=for-the-badge)
-![Free](https://img.shields.io/badge/price-FREE%20FOREVER-brightgreen?style=for-the-badge)
-
-**Mouse-based prop placement, full 3D rotation, real-time statebag sync, item integration, and a clean immersive UI.**
+**Mouse-based prop placement, full 3D rotation, real-time statebag sync, item integration, and a clean immersive UI.**  
 Built on ox_core · ox_lib · ox_inventory · ox_target · oxmysql
 
 *Built by [Red Dragon Elite](https://rd-elite.com) | SerpentsByte*
-
-</div>
 
 ---
 
 ## 📖 Table of Contents
 
 - [Overview](#-overview)
+- [Ecosystem](#-ecosystem)
 - [Features](#-features)
 - [Dependencies](#-dependencies)
 - [Installation](#-installation)
-- [Configuration](#%EF%B8%8F-configuration)
+- [Configuration](#️-configuration)
 - [Usage & Controls](#-usage--controls)
 - [Item Integration](#-item-integration)
 - [Developer API](#-developer-api)
@@ -55,12 +51,32 @@ Built on ox_core · ox_lib · ox_inventory · ox_target · oxmysql
 | Admin prop limits | ❌ | ✅ Separate admin limits |
 | Collision toggle | ❌ | ✅ Live toggle |
 | Database persistent | Sometimes | ✅ Always — auto table |
+| Stash & Crafting layer | ❌ | ✅ Via rde_props_interact addon |
+
+---
+
+## 🌐 Ecosystem
+
+rde_props is the foundation of an open prop ecosystem. Use it standalone or extend it with the official addon:
+
+| Resource | Description |
+|---|---|
+| **[rde_props](https://github.com/RedDragonElite/rde_props)** | Core placement system — this repo |
+| **[rde_props_interact](https://github.com/RedDragonElite/rde_props_interact)** | Stash, crafting, lock & crack layer |
+
+**rde_props_interact** turns any placed prop into a lockable stash or crafting station — with ox_inventory integration, passcode/job/owner locks, crack mechanics, skillchecks, and full recipe systems. Zero modifications to rde_props core required.
+
+```
+ensure rde_props
+ensure rde_props_interact   ← optional addon, drop-in / drop-out
+```
 
 ---
 
 ## ✨ Features
 
 ### 🎯 Placement System
+
 - Raycast-based mouse targeting for intuitive positioning
 - Full X, Y, Z axis rotation with smooth controls
 - Three speed modes — Normal, Fast (SHIFT), Precise (ALT)
@@ -70,24 +86,28 @@ Built on ox_core · ox_lib · ox_inventory · ox_target · oxmysql
 - Collision toggle live during placement (G key)
 
 ### 💾 Persistence & Sync
+
 - MySQL auto-table creation on first start
 - Statebag-based real-time sync across all clients
 - Minimal network overhead — only changes are broadcast
 - LOD system and configurable render distance
 
 ### 🎨 UI / UX
+
 - ox_lib context menu for management
 - ox_target interaction on placed props (info, delete, toggle collision, admin tools)
 - Live placement HUD with status, height, and rotation display
 - Color-coded placement validation (green = valid, red = invalid)
 
 ### 📦 Item Integration
+
 - ox_inventory item-based placeable props
 - Item removed on placement start, returned on cancel
 - Item-placed props are pickupable by anyone
 - Admin-placed props are permanent
 
 ### 🛡️ Security
+
 - ACE permission + ox_core group-based admin system
 - Anti-spam cooldowns
 - Duplicate placement prevention
@@ -118,7 +138,7 @@ git clone https://github.com/RedDragonElite/rde_props.git
 
 ### 2. Add to `server.cfg`
 
-```cfg
+```
 ensure oxmysql
 ensure ox_core
 ensure ox_lib
@@ -175,18 +195,18 @@ Config.AdminGroups = {
 
 ```lua
 Config.Controls = {
-    confirm        = 24,    -- Left Mouse — confirm placement
-    cancel         = 25,    -- Right Mouse — cancel
-    rotateLeft     = 108,   -- Numpad 4 — rotate Z-
-    rotateRight    = 109,   -- Numpad 6 — rotate Z+
-    forward        = 172,   -- Arrow Up — rotate X+
-    backward       = 173,   -- Arrow Down — rotate X-
-    up             = 96,    -- Numpad + — height up
-    down           = 97,    -- Numpad - — height down
-    fastMode       = 21,    -- SHIFT — 3x speed
-    preciseMode    = 19,    -- ALT — fine control
+    confirm         = 24,   -- Left Mouse — confirm placement
+    cancel          = 25,   -- Right Mouse — cancel
+    rotateLeft      = 108,  -- Numpad 4 — rotate Z-
+    rotateRight     = 109,  -- Numpad 6 — rotate Z+
+    forward         = 172,  -- Arrow Up — rotate X+
+    backward        = 173,  -- Arrow Down — rotate X-
+    up              = 96,   -- Numpad + — height up
+    down            = 97,   -- Numpad - — height down
+    fastMode        = 21,   -- SHIFT — 3x speed
+    preciseMode     = 19,   -- ALT — fine control
     toggleCollision = 47,   -- G — toggle collision
-    deleteMode     = 178,   -- DELETE
+    deleteMode      = 178,  -- DELETE
 }
 ```
 
@@ -214,23 +234,11 @@ Config.MousePlacement = {
 
 ```lua
 Config.Performance = {
-    enableLOD               = true,
-    lodDistance             = 150.0,
-    maxVisibleProps         = 200,
-    updateTickRate          = 1000,
-    garbageCollectInterval  = 60000,
-}
-```
-
-### Colors
-
-```lua
-Config.Colors = {
-    valid   = { r = 0,   g = 255, b = 0   },   -- green
-    invalid = { r = 255, g = 0,   b = 0   },   -- red
-    warning = { r = 255, g = 165, b = 0   },   -- orange
-    info    = { r = 59,  g = 130, b = 246 },   -- blue
-    admin   = { r = 255, g = 215, b = 0   },   -- gold
+    enableLOD              = true,
+    lodDistance            = 150.0,
+    maxVisibleProps        = 200,
+    updateTickRate         = 1000,
+    garbageCollectInterval = 60000,
 }
 ```
 
@@ -268,6 +276,7 @@ Config.Colors = {
 ### Interacting with Placed Props (ox_target)
 
 Look at any placed prop and use your interaction key to get:
+
 - 📦 Information
 - 💥 Toggle Collision
 - 🗑️ Delete Prop
@@ -290,32 +299,6 @@ Add placeable items to `ox_inventory/data/items.lua`:
         prop  = 'prop_bench_01a',
         event = 'rde_props:placeItemProp',
         name  = 'Wooden Bench',
-    }
-},
-
-['barrier_prop'] = {
-    label       = 'Traffic Barrier',
-    weight      = 5000,
-    stack       = false,
-    close       = true,
-    description = 'A placeable traffic barrier',
-    client = {
-        prop  = 'prop_barrier_work05',
-        event = 'rde_props:placeItemProp',
-        name  = 'Traffic Barrier',
-    }
-},
-
-['table_prop'] = {
-    label       = 'Wooden Table',
-    weight      = 2000,
-    stack       = false,
-    close       = true,
-    description = 'A placeable wooden table',
-    client = {
-        prop  = 'prop_table_02',
-        event = 'rde_props:placeItemProp',
-        name  = 'Wooden Table',
     }
 },
 ```
@@ -354,11 +337,12 @@ TriggerEvent('rde_props:openMenu')
 ## 🛡️ Admin System
 
 Admin access is verified against ox_core groups defined in `Config.AdminGroups`. Admins receive:
+
 - Higher prop limit (`Config.AdminPropLimit`)
 - Access to admin-only target options (toggle admin status, force delete any prop)
 - `/reloadprops` and `/propstats` commands
 
-```cfg
+```
 # server.cfg
 add_ace group.admin rde.props.admin allow
 add_principal identifier.steam:110000xxxxxxxx group.admin
@@ -408,6 +392,10 @@ CREATE TABLE rde_props (
 
 ## ⚡ Performance
 
+### Architecture
+
+Props are spawned as **local client entities** (`CreateObject` with `network=false`) — no GTA networked entity overhead, no entity limit. Sync is handled exclusively via StateBags, broadcasting only delta changes.
+
 ### Benchmarks
 
 | Props in World | Client FPS Impact | Sync Overhead |
@@ -425,6 +413,7 @@ CREATE TABLE rde_props (
 | 128+ players | 2000–5000 |
 
 ### Optimization Tips
+
 - Keep `enableLOD = true` — distant props use lower detail
 - Lower `maxVisibleProps` on weaker hardware
 - Raise `updateTickRate` to reduce sync frequency on large prop counts
@@ -434,40 +423,40 @@ CREATE TABLE rde_props (
 
 ## 🐛 Troubleshooting
 
-**Props not appearing after restart?**
+**Props not appearing after restart?**  
 Run `/reloadprops` in console. If still missing, check `oxmysql` is fully started before `rde_props` — fix the `ensure` order in `server.cfg`.
 
-**"Model load failed" error?**
+**"Model load failed" error?**  
 Verify the model name is a valid GTA V prop string. Check [forge.plebmasters.de/objects](https://forge.plebmasters.de/objects) for valid names.
 
-**Placement mode stuck / can't confirm?**
+**Placement mode stuck / can't confirm?**  
 Check that no other resource is consuming the Left Mouse / ENTER keybind. Enable `Config.Debug = true` and check F8 console for conflicts.
 
-**ox_target options not showing?**
+**ox_target options not showing?**  
 Make sure `ox_target` is started before `rde_props` and the player ped is fully loaded. Check F8 console for export errors.
 
-**"No permission" on admin commands?**
+**"No permission" on admin commands?**  
 Verify the player's ox_core group is listed in `Config.AdminGroups` and the resource has restarted since the config change.
 
 ---
 
 ## 📝 Changelog
 
-### v1.0.0 — Current
+### v1.0.1 — Current
+- Fixed `collision = false or true` logic bomb in `StartPlacement` and `placeFromItem`
+- Fixed double StateBag + TriggerClientEvent in `toggleCollision` and `toggleAdmin` (double broadcast)
+- Fixed `Wait()` inside `rde_props:requestReload` NetEvent handler (now wrapped in CreateThread)
+- Clarified `returnItem` handler comment
+
+### v1.0.0 — Initial release
 - Complete rewrite with immersive placement UI
 - Mouse-based raycast placement
 - Full 3D rotation on all axes
 - Speed modes (Fast / Precise)
 - ox_target integration
-- Improved statebag sync
+- Statebag sync
 - Enhanced security & anti-spam
 - Real-time statistics
-
-### v1.0.0
-- Initial release
-- Basic prop placement
-- Database integration
-- Admin system
 
 ---
 
@@ -490,7 +479,7 @@ Guidelines: follow existing Lua conventions, comment complex logic, test on a li
 #                                                                                 #
 #      .:: RED DRAGON ELITE (RDE)  -  BLACK FLAG SOURCE LICENSE v6.66 ::.         #
 #                                                                                 #
-#   PROJECT:    RDE_PROPS v1.0.0 (ADVANCED PROP MANAGEMENT SYSTEM FOR FIVEM)      #
+#   PROJECT:    RDE_PROPS v1.0.1 (ADVANCED PROP MANAGEMENT SYSTEM FOR FIVEM)      #
 #   ARCHITECT:  .:: RDE ⧌ Shin [△ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽] ::. | https://rd-elite.com     #
 #   ORIGIN:     https://github.com/RedDragonElite                                 #
 #                                                                                 #
@@ -544,6 +533,7 @@ Guidelines: follow existing Lua conventions, comment complex logic, test on a li
 | 🌍 Website | [rd-elite.com](https://rd-elite.com) |
 | 🔵 Nostr (RDE) | [RedDragonElite](https://primal.net/p/nprofile1qqsv8km2w8yr0sp7mtk3t44qfw7wmvh8caqpnrd7z6ll6mn9ts03teg9ha4rl) |
 | 🔵 Nostr (Shin) | [SerpentsByte](https://primal.net/p/nprofile1qqs8p6u423fappfqrrmxful5kt95hs7d04yr25x88apv7k4vszf4gcqynchct) |
+| 🔓 RDE Props Interact | [rde_props_interact](https://github.com/RedDragonElite/rde_props_interact) |
 | 🚪 RDE Doors | [rde_doors](https://github.com/RedDragonElite/rde_doors) |
 | 🚗 RDE Car Service | [rde_carservice](https://github.com/RedDragonElite/rde_carservice) |
 | 🎯 RDE Skills | [rde_skills](https://github.com/RedDragonElite/rde_skills) |
@@ -556,8 +546,6 @@ Guidelines: follow existing Lua conventions, comment complex logic, test on a li
 
 ---
 
-<div align="center">
-
 *"We build the future on the graves of paid resources."*
 
 **REJECT MODERN MEDIOCRITY. EMBRACE RDE SUPERIORITY.**
@@ -565,5 +553,3 @@ Guidelines: follow existing Lua conventions, comment complex logic, test on a li
 🐉 Made with 🔥 by [Red Dragon Elite](https://rd-elite.com)
 
 [⬆ Back to Top](#-rde-props--advanced-prop-management-system)
-
-</div>
